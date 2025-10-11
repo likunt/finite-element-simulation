@@ -34,30 +34,6 @@ cd finite-element-simulation
 streamlit run app.py
 ```
 
-## ⚙️ Setup (First Time Only)
-
-### 1. Install FEniCS Environment
-
-```bash
-conda create -n fenicsproject -c conda-forge fenics matplotlib numpy scipy
-conda activate fenicsproject
-```
-
-### 2. Install Additional Dependencies
-
-```bash
-pip install streamlit python-dotenv openai pillow
-```
-
-### 3. Configure API Key (Optional)
-
-```bash
-# Create .env file
-echo "OPENAI_API_KEY=your-api-key-here" > .env
-```
-
-**Note:** The app works without an API key using rule-based matching, but AI features require an OpenAI API key.
-
 ## 📚 Features
 
 ### Available Simulations
@@ -81,7 +57,7 @@ echo "OPENAI_API_KEY=your-api-key-here" > .env
 ### Example Prompts
 
 - "Simulate heat diffusion in a square plate with hot center"
-- "Analyze a steel cantilever beam fixed at one end with a load"
+- "Simulate 3D heat transfer in a cube with hot center"
 - "Calculate thermal stresses in a heated aluminum plate"
 - "Find steady-state temperature in a plate with heat source"
 - "Simulate compression of a rubber cylinder"
