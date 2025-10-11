@@ -1,0 +1,8 @@
+<script>start("/Users/likun/Desktop/finite-element-simulation/backend/");</script>
+<script>onHasParentDirectory();</script>
+<script>addRow("__pycache__","__pycache__",1,128,"128 B",1760212929,"10/11/25, 4:02:09 PM");</script>
+<script>addRow("activate_fenics.sh","activate_fenics.sh",0,1047,"1.0 kB",1760202985,"10/11/25, 1:16:25 PM");</script>
+<script>addRow("heat_transfer.py","heat_transfer.py",0,19419,"19.0 kB",1760212721,"10/11/25, 3:58:41 PM");</script>
+<script>addRow("README.md","README.md",0,5647,"5.5 kB",1760205220,"10/11/25, 1:53:40 PM");</script>
+<script>addRow("requirements.txt","requirements.txt",0,1701,"1.7 kB",1760213418,"10/11/25, 4:10:18 PM");</script>
+<script>addRow("solid_mechanics.py","solid_mechanics.py",0,10529,"10.3 kB",1760204212,"10/11/25, 1:36:52 PM");</script>
