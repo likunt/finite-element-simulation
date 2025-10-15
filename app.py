@@ -11,6 +11,7 @@ import os
 import sys
 from pathlib import Path
 import importlib.util
+import requests
 
 # Optional dotenv support (no-op if package is missing)
 try:
@@ -439,6 +440,82 @@ def run_simulation(function_name, parameters, mesh_resolution, time_steps, simul
     start_time = time.time()
     
     try:
+        # If configured, use remote API (FEniCS inside Docker)
+        api_url = os.getenv("FENICS_API_URL")
+        if api_url:
+            # Prepare parameters similar to local run
+            cleaned_params = {}
+            for key, value in parameters.items():
+                if isinstance(value, str):
+                    try:
+                        cleaned_params[key] = float(value) if '.' in value else int(value)
+                    except (ValueError, AttributeError):
+                        continue
+                elif isinstance(value, (int, float)):
+                    cleaned_params[key] = value
+
+            module_name, func_name = function_name.rsplit('.', 1)
+            if func_name in ('solve_heat_equation', 'solve_steady_state_heat'):
+                cleaned_params.setdefault('nx', mesh_resolution)
+                cleaned_params.setdefault('ny', mesh_resolution)
+            if func_name == 'solve_heat_equation':
+                cleaned_params.setdefault('T_final', simulation_time)
+                cleaned_params.setdefault('num_steps', time_steps)
+                if alpha is not None:
+                    cleaned_params['alpha'] = alpha
+            if func_name == 'solve_steady_state_heat' and thermal_conductivity is not None:
+                cleaned_params['thermal_conductivity'] = thermal_conductivity
+
+            payload = {"function_name": function_name, "parameters": cleaned_params}
+            resp = requests.post(f"{api_url.rstrip('/')}/simulate", json=payload, timeout=300)
+            if resp.status_code != 200:
+                return {"success": False, "error": f"API error: {resp.status_code} {resp.text}"}
+            data = resp.json()
+            if not data.get('success'):
+                return {"success": False, "error": data}
+
+            # Decode plots (base64 → BytesIO)
+            plots = {}
+            try:
+                from io import BytesIO
+                import base64
+                for name, b64 in (data.get('plots') or {}).items():
+                    try:
+                        plots[name] = BytesIO(base64.b64decode(b64))
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+            # Interactive plots (Plotly JSON → Figure)
+            if data.get('plots_interactive'):
+                try:
+                    import plotly.io as pio
+                    for name, fig_json in data['plots_interactive'].items():
+                        try:
+                            plots[name] = pio.from_json(fig_json)
+                        except Exception:
+                            pass
+                except Exception:
+                    pass
+
+            # Minimal success payload for UI
+            result_metrics = data.get('result', {})
+            return {
+                'success': True,
+                'solve_time': 0.0,
+                'num_elements': result_metrics.get('num_cells', 'N/A'),
+                'metrics': {
+                    'Mesh Cells': result_metrics.get('num_cells', 'N/A'),
+                    'Mesh Vertices': result_metrics.get('num_vertices', 'N/A'),
+                    'Time Steps': result_metrics.get('time_steps', 'N/A'),
+                    'Max Temperature': result_metrics.get('max_temperature', 'N/A'),
+                },
+                'plots': plots,
+                'output_dir': data.get('output_dir'),
+            }
+
+        # Otherwise run locally (requires fenics installed)
         # Import the appropriate module
         module_name, func_name = function_name.rsplit('.', 1)
         
@@ -858,7 +935,7 @@ if run_button and problem_description and 'current_analysis' in st.session_state
                             if plot_name == '3d_interactive':
                                 # Display interactive Plotly figure
                                 try:
-                                    st.plotly_chart(plot_data, use_container_width=True)
+                                    st.plotly_chart(plot_data, use_column_width=True)
                                     st.success("✨ **Interactive 3D Visualization**")
                                     st.info("💡 **Controls:**\n"
                                            "- **Rotate:** Click and drag\n"
@@ -871,7 +948,7 @@ if run_button and problem_description and 'current_analysis' in st.session_state
                             else:
                                 # Display static image from BytesIO buffer
                                 plot_data.seek(0)  # Reset buffer position
-                                st.image(plot_data, use_container_width=True)
+                                st.image(plot_data, use_column_width=True)
                                 
                                 # Show tips for special plot types
                                 if plot_name == 'animation':
