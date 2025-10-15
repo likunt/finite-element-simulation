@@ -615,8 +615,8 @@ def run_simulation(function_name, parameters, mesh_resolution, time_steps, simul
 # UI CODE STARTS HERE
 # ============================================================================
 
-# Load API key from environment
-api_key = os.getenv("OPENAI_API_KEY")
+# Load API key from session or environment
+api_key = st.session_state.get('api_key') or os.getenv("OPENAI_API_KEY")
 
 # Sidebar
 with st.sidebar:
@@ -633,6 +633,19 @@ with st.sidebar:
     else:
         st.warning("⚠️ No API key found in .env file")
         st.info("Create a `.env` file with:\n`OPENAI_API_KEY=your-key-here`")
+    
+    # API Key input (stored only in session)
+    st.write("**API Key**")
+    api_key_input = st.text_input(
+        "Enter OpenAI API Key",
+        value=st.session_state.get('api_key', ''),
+        type="password",
+        placeholder="sk-...",
+        help="Stored for this session only (not saved to disk)."
+    )
+    if api_key_input:
+        st.session_state.api_key = api_key_input
+        api_key = api_key_input
     
     st.divider()
     
