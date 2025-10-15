@@ -935,7 +935,7 @@ if run_button and problem_description and 'current_analysis' in st.session_state
                             if plot_name == '3d_interactive':
                                 # Display interactive Plotly figure
                                 try:
-                                    st.plotly_chart(plot_data, use_column_width=True)
+                                    st.plotly_chart(plot_data, use_container_width=True)
                                     st.success("✨ **Interactive 3D Visualization**")
                                     st.info("💡 **Controls:**\n"
                                            "- **Rotate:** Click and drag\n"
@@ -948,7 +948,7 @@ if run_button and problem_description and 'current_analysis' in st.session_state
                             else:
                                 # Display static image from BytesIO buffer
                                 plot_data.seek(0)  # Reset buffer position
-                                st.image(plot_data, use_column_width=True)
+                                st.image(plot_data, use_container_width=True)
                                 
                                 # Show tips for special plot types
                                 if plot_name == 'animation':
