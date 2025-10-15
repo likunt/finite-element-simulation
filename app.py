@@ -11,7 +11,13 @@ import os
 import sys
 from pathlib import Path
 import importlib.util
-from dotenv import load_dotenv
+
+# Optional dotenv support (no-op if package is missing)
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover
+    def load_dotenv(*args, **kwargs):
+        return False
 
 # Load environment variables from .env file
 load_dotenv()
