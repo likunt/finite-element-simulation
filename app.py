@@ -441,7 +441,7 @@ def run_simulation(function_name, parameters, mesh_resolution, time_steps, simul
     
     try:
         # If configured, use remote API (FEniCS inside Docker)
-        api_url = os.getenv("FENICS_API_URL", "https://finite-element-simulation-purple-dew-7118.fly.dev")
+        api_url = os.getenv("FENICS_API_URL", "https://finite-element-simulation-snowy-smoke-4087.fly.dev")
 
         if api_url:
             # Prepare parameters similar to local run
